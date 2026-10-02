@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#08090d;color:#fff}
+header{position:sticky;top:0;z-index:10;background:#12141b;border-bottom:1px solid #292c35}
+.nav{max-width:1100px;margin:auto;padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{color:#ffd21a;font-size:24px;font-weight:900;cursor:pointer;margin-right:auto}
+nav{display:flex;gap:7px;flex-wrap:wrap}
+nav button,.searchBtn{border:0;background:none;color:#ddd;font-weight:bold;padding:8px;cursor:pointer}
+nav button:hover{color:#ffd21a}
+.search{width:100%;max-width:260px;background:#0b0d12;color:#fff;border:1px solid #383c47;border-radius:22px;padding:10px 14px;outline:0}
+.page{max-width:1100px;margin:auto;padding:22px 15px}
+.hero{padding:55px 20px;text-align:center;border-radius:20px;background:linear-gradient(135deg,#1a1d2b,#30202f);margin-bottom:28px}
+.hero h1{font-size:42px;margin-bottom:12px}.hero p{color:#bbb;margin-bottom:20px}
+.btn{display:inline-block;border:0;background:#ffd21a;color:#111;padding:11px 18px;border-radius:8px;font-weight:bold;cursor:pointer}
+.title{color:#ffd21a;margin:18px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px}
+.card{background:#151821;border:1px solid #272b35;border-radius:12px;overflow:hidden}
+.card img{width:100%;height:235px;object-fit:cover;display:block}
+.info{padding:12px}.info h3{margin-bottom:7px}.muted{color:#999;font-size:14px;margin-bottom:10px}
+.watch{width:100%;border:0;background:#ffd21a;color:#111;padding:9px;border-radius:7px;font-weight:bold;cursor:pointer}
+.notice{margin-top:25px;padding:13px;background:#171a22;border-left:4px solid #ffd21a;color:#bbb}
+.detail{display:grid;grid-template-columns:250px 1fr;gap:25px;background:#151821;padding:20px;border-radius:15px}
+.detail img{width:100%;border-radius:10px}.detail h2{font-size:32px;margin-bottom:12px}.detail p{color:#bbb;line-height:1.6;margin-bottom:15px}
+footer{text-align:center;color:#888;padding:35px 15px;margin-top:35px;border-top:1px solid #222}
+.hidden{display:none}
+@media(max-width:700px){.logo{width:100%;text-align:center}nav{width:100%;justify-content:center}.search{max-width:none}.hero h1{font-size:30px}.detail{grid-template-columns:1fr}.detail img{max-width:250px;margin:auto}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="nav">
+<div class="logo" onclick="showPage('home')">🎬 MOVIE HUB</div>
+<nav>
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('movies')">Movies</button>
+<button onclick="showPage('bollywood')">Bollywood</button>
+<button onclick="showPage('hollywood')">Hollywood</button>
+<button onclick="showPage('search')">🔎 Search</button>
+</nav>
+<input id="searchBox" class="search" placeholder="Movie search..." oninput="quickSearch()">
+</div>
+</header>
+
+<main class="page">
+
+<section id="home">
+<div class="hero">
+<h1>🎬 Welcome to Movie Hub</h1>
+<p>Movies और official viewing links एक जगह।</p>
+<button class="btn" onclick="showPage('movies')">Browse Movies</button>
+</div>
+<h2 class="title">🔥 Latest Movies</h2>
+<div class="grid" id="homeGrid"></div>
+</section>
+
+<section id="movies" class="hidden">
+<h2 class="title">🎞️ All Movies</h2>
+<div class="grid" id="moviesGrid"></div>
+</section>
+
+<section id="bollywood" class="hidden">
+<h2 class="title">🇮🇳 Bollywood Movies</h2>
+<div class="grid" id="bollywoodGrid"></div>
+</section>
+
+<section id="hollywood" class="hidden">
+<h2 class="title">🌎 Hollywood Movies</h2>
+<div class="grid" id="hollywoodGrid"></div>
+</section>
+
+<section id="search" class="hidden">
+<h2 class="title">🔎 Search Movies</h2>
+<input id="searchPageBox" class="search" style="max-width:600px" placeholder="Movie name..." oninput="searchMovies()">
+<div class="grid" id="searchGrid" style="margin-top:20px"></div>
+</section>
+
+<section id="details" class="hidden">
+<div id="detailBox"></div>
+</section>
+
+<div class="notice">
+इस template में केवल अपनी, public-domain या licensed movies/posters और official viewing links इस्तेमाल करें।
+</div>
+</main>
+
+<footer>© 2026 Movie Hub</footer>
+
+<script>
+const movies=[
+{name:"Movie One",cat:"Bollywood",year:"2026",genre:"Action",img:"https://via.placeholder.com/500x750?text=Movie+One",link:"#",desc:"यहाँ अपनी movie की description लिखें।"},
+{name:"Movie Two",cat:"Bollywood",year:"2026",genre:"Drama",img:"https://via.placeholder.com/500x750?text=Movie+Two",link:"#",desc:"यहाँ अपनी movie की description लिखें।"},
+{name:"Movie Three",cat:"Hollywood",year:"2026",genre:"Action",img:"https://via.placeholder.com/500x750?text=Movie+Three",link:"#",desc:"यहाँ अपनी movie की description लिखें।"},
+{name:"Movie Four",cat:"Hollywood",year:"2026",genre:"Comedy",img:"https://via.placeholder.com/500x750?text=Movie+Four",link:"#",desc:"यहाँ अपनी movie की description लिखें।"}
+];
+
+const sections=["home","movies","bollywood","hollywood","search","details"];
+
+function card(m,i){
+return `<article class="card">
+<img src="${m.img}" alt="${m.name}">
+<div class="info">
+<h3>${m.name}</h3>
+<p class="muted">${m.cat} • ${m.year} • ${m.genre}</p>
+<button class="watch" onclick="showDetails(${i})">▶ Details</button>
+</div></article>`;
+}
+function render(id,list){
+document.getElementById(id).innerHTML=list.length?list.map((m,i)=>card(m,movies.indexOf(m))).join(""):"<p class='muted'>No movies found.</p>";
+}
+function showPage(id){
+sections.forEach(x=>document.getElementById(x).classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+if(id==="home")render("homeGrid",movies);
+if(id==="movies")render("moviesGrid",movies);
+if(id==="bollywood")render("bollywoodGrid",movies.filter(m=>m.cat==="Bollywood"));
+if(id==="hollywood")render("hollywoodGrid",movies.filter(m=>m.cat==="Hollywood"));
+if(id==="search")searchMovies();
+window.scrollTo(0,0);
+}
+function showDetails(i){
+const m=movies[i];
+document.getElementById("detailBox").innerHTML=`
+<div class="detail">
+<img src="${m.img}" alt="${m.name}">
+<div>
+<h2>${m.name}</h2>
+<p>${m.cat} • ${m.year} • ${m.genre}</p>
+<p>${m.desc}</p>
+<a class="btn" href="${m.link}" target="_blank" rel="noopener">▶ Official Watch</a>
+<br><br><button class="btn" onclick="showPage('movies')">← Back</button>
+</div></div>`;
+showPage("details");
+}
+function searchMovies(){
+const q=(document.getElementById("searchPageBox")?.value||"").toLowerCase();
+render("searchGrid",movies.filter(m=>(m.name+" "+m.cat+" "+m.genre).toLowerCase().includes(q)));
+}
+function quickSearch(){
+const q=document.getElementById("searchBox").value.trim();
+if(q){showPage("search");document.getElementById("searchPageBox").value=q;searchMovies();}
+}
+render("homeGrid",movies);
+</script>
+</body>
+</html>
